@@ -6,6 +6,7 @@ import com.iscreammm.restapi.service.UserService;
 import com.iscreammm.restapi.utils.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
+
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,5 +40,12 @@ public class AuthenticationController {
         String profileData = userService.getProfile(data);
 
         return (new Message<>(true, "", profileData)).toString();
+    }
+
+    @GetMapping(path = "/refresh/{token}")
+    public String refreshToken(@PathVariable String token) throws IOException {
+        String data = userService.refreshToken(token);
+
+        return (new Message<>(true, "", data)).toString();
     }
 }

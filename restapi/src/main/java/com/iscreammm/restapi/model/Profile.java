@@ -2,6 +2,8 @@ package com.iscreammm.restapi.model;
 
 import jakarta.persistence.*;
 
+import java.util.Arrays;
+
 @Entity(name = "Profile")
 @Table(name = "profile")
 public class Profile {
@@ -10,8 +12,11 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 20, name = "login")
+    @Column(nullable = false, length = 20, name = "name")
     private String name;
+
+    @Column(nullable = false, name = "photo", columnDefinition = "bytea")
+    private byte[] photo;
 
     @OneToOne(targetEntity = User.class)
     @JoinColumn(name = "users_id")
@@ -45,11 +50,19 @@ public class Profile {
     }
 
     public User getUser() {
-        return user;
+        return this.user;
     }
 
     public Gender getGender() {
-        return gender;
+        return this.gender;
+    }
+
+    public byte[] getPhoto() {
+        return this.photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
     }
 
     @Override
@@ -57,6 +70,7 @@ public class Profile {
         return "{" +
                 "id: " + id + ", " +
                 "name: '" + name + "', " +
+                "photo: " + Arrays.toString(photo) + ", " +
                 "gender: '" + gender.getGender() +
                 "'}";
     }

@@ -1,19 +1,24 @@
 package com.iscreammm.restapi.model;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.HashSet;
 
 @Entity(name = "User")
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false, length = 16, name = "login")
-    private String login;
+    @Column(unique = true, nullable = false, length = 16, name = "username")
+    private String username;
 
-    @Column(nullable = false, length = 16, name = "password")
+    @Column(nullable = false, length = 60, name = "password")
     private String password;
 
     @OneToOne(mappedBy = "user", targetEntity = Profile.class)
@@ -22,8 +27,8 @@ public class User {
     public User() {
     }
 
-    public User(String login, String password) {
-        this.login = login;
+    public User(String username, String password) {
+        this.username = username;
         this.password = password;
     }
 
@@ -41,5 +46,35 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return new HashSet<>();
     }
 }

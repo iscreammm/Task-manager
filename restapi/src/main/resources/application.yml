@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/task_manager
+    url     : jdbc:postgresql://localhost:5432/task_manager
     username: postgres
     password: qwerty
 
@@ -14,3 +14,12 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+app:
+  jwtAccessSecret       : 9bfd719cf4f17e1969cf566a31e88a18
+  jwtRefreshSecret      : 4d3614a9766155687c54f9801c7ca2f6
+  jwtExpirationMs       : 3600000
+  jwtRefreshExpirationMs: 86400000
+
+jedis:
+  host: localhost
+  port: 6379
