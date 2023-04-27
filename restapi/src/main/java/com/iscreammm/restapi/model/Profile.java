@@ -3,6 +3,7 @@ package com.iscreammm.restapi.model;
 import jakarta.persistence.*;
 
 import java.util.Arrays;
+import java.util.Date;
 
 @Entity(name = "Profile")
 @Table(name = "profile")
@@ -12,8 +13,11 @@ public class Profile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 20, name = "name")
+    @Column(nullable = false, length = 50, name = "name")
     private String name;
+
+    @Column(nullable = false, name = "birthday")
+    private Date birthday;
 
     @Column(nullable = false, name = "photo", columnDefinition = "bytea")
     private byte[] photo;
@@ -29,8 +33,9 @@ public class Profile {
     public Profile() {
     }
 
-    public Profile(String name) {
+    public Profile(String name, Date birthday) {
         this.name = name;
+        this.birthday = birthday;
     }
 
     public Long getId() {

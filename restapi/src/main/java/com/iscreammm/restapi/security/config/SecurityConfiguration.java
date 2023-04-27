@@ -31,7 +31,7 @@ public class SecurityConfiguration {
         httpSecurity
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth", "/refresh/{token}").permitAll()
+                        .requestMatchers("/auth", "/refresh/{token}", "/activate/{code}").permitAll()
                         .anyRequest().authenticated()
                 );
 

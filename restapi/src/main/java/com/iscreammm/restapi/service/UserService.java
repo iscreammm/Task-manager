@@ -19,6 +19,7 @@ import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
 
 import java.io.IOException;
+import java.rmi.AccessException;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -49,6 +50,8 @@ public class UserService implements UserDetailsService {
 
         if (user == null) {
             throw new IOException("Username isn't correct");
+        } else if (!user.isActive()) {
+            throw new AccessException("Mail isn't confirmed");
         } else if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new IOException("Password isn't correct");
         }
@@ -82,6 +85,19 @@ public class UserService implements UserDetailsService {
         updatePair(refreshToken, username);
 
         return new JwtResponse(accessToken, refreshToken).toString();
+    }
+
+    public void activateUser(String code) throws IOException {
+        User user = userRepository.findByCode(code);
+
+        if (code == null) {
+            throw new IOException("Invalid code");
+        } else {
+            user.setActive(true);
+            user.setCode(null);
+
+            userRepository.save(user);
+        }
     }
 
     public void updatePair(String refreshToken, String username) {

@@ -25,11 +25,11 @@ public class RestapiApplication {
 	@Bean
 	InitializingBean sendDatabase() {
 		return () -> {
-			if (genderRepository.findByGender("Male") == null
-					&& genderRepository.findByGender("Female") == null)
+			if (genderRepository.findByGender("Мужской") == null
+					&& genderRepository.findByGender("Женский") == null)
 			{
-				genderRepository.save(new Gender("Male"));
-				genderRepository.save(new Gender("Female"));
+				genderRepository.save(new Gender("Мужской"));
+				genderRepository.save(new Gender("Женский"));
 			}
 		};
 	}

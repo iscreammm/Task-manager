@@ -5,6 +5,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
+import jakarta.mail.MessagingException;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -60,6 +61,14 @@ public class DefaultAdvice {
     @ResponseBody
     public String handleException(IllegalArgumentException e) {
         Message<Integer> message = new Message<>(false, "JWT claims string is empty: " + e.getMessage(), -1);
+
+        return message.toString();
+    }
+
+    @ExceptionHandler(MessagingException.class)
+    @ResponseBody
+    public String handleException(MessagingException e) {
+        Message<Integer> message = new Message<>(false, "Mail sending error: " + e.getMessage(), -1);
 
         return message.toString();
     }

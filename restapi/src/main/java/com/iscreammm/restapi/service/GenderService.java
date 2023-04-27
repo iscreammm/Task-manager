@@ -21,7 +21,7 @@ public class GenderService {
         Gender gender = genderRepository.findByGender(genderName);
 
         if (gender == null) {
-            throw new IOException("Not supported gender");
+            throw new IOException("Gender must be 'Мужской' or 'Женский'");
         } else {
             return gender;
         }

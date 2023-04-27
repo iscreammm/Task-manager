@@ -4,6 +4,7 @@ import com.iscreammm.restapi.service.GenderService;
 import com.iscreammm.restapi.service.ProfileService;
 import com.iscreammm.restapi.service.UserService;
 import com.iscreammm.restapi.utils.Message;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 
@@ -29,7 +30,7 @@ public class AuthenticationController {
     }
 
     @PostMapping(path = "/auth", consumes="application/json")
-    public String registerUser(@RequestBody String data) throws JSONException, IOException {
+    public String registerUser(@RequestBody String data) throws JSONException, IOException, MessagingException {
         profileService.addProfile(data);
 
         return (new Message<>(true, "", 1)).toString();
@@ -40,6 +41,13 @@ public class AuthenticationController {
         String profileData = userService.getProfile(data);
 
         return (new Message<>(true, "", profileData)).toString();
+    }
+
+    @GetMapping(path = "/activate/{code}")
+    public String activateUser(@PathVariable String code) throws IOException {
+        userService.activateUser(code);
+
+        return (new Message<>(true, "", 1)).toString();
     }
 
     @GetMapping(path = "/refresh/{token}")

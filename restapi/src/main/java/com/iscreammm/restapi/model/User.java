@@ -15,11 +15,20 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false, length = 16, name = "username")
+    @Column(unique = true, nullable = false, length = 30, name = "username")
     private String username;
 
     @Column(nullable = false, length = 60, name = "password")
     private String password;
+
+    @Column(nullable = false, length = 40, name = "mail")
+    private String mail;
+
+    @Column(nullable = true, length = 32, name = "")
+    private String code;
+
+    @Column(nullable = false, name = "isActive")
+    private boolean isActive;
 
     @OneToOne(mappedBy = "user", targetEntity = Profile.class)
     private Profile profile;
@@ -27,9 +36,12 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String username, String password) {
+    public User(String username, String password, String mail, String code) {
         this.username = username;
         this.password = password;
+        this.mail = mail;
+        this.code = code;
+        this.isActive = false;
     }
 
     public Long getId() {
@@ -51,6 +63,30 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return username;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     @Override
