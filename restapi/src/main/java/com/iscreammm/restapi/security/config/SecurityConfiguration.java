@@ -1,18 +1,17 @@
 package com.iscreammm.restapi.security.config;
 
 import com.iscreammm.restapi.security.jwt.AuthTokenFilter;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
-@EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfiguration {
 
@@ -31,7 +30,7 @@ public class SecurityConfiguration {
         httpSecurity
                 .csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth", "/refresh/{token}", "/activate/{code}").permitAll()
+                        .requestMatchers("/check", "/auth", "/refresh/{token}", "/activate/{code}").permitAll()
                         .anyRequest().authenticated()
                 );
 

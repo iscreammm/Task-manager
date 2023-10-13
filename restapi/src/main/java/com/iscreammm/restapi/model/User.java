@@ -21,14 +21,18 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 60, name = "password")
     private String password;
 
-    @Column(nullable = false, length = 40, name = "mail")
+    @Column(unique = true, nullable = false, length = 40, name = "mail")
     private String mail;
 
-    @Column(nullable = true, length = 32, name = "")
+    @Column(length = 32, name = "code")
     private String code;
 
     @Column(nullable = false, name = "isActive")
     private boolean isActive;
+
+    @OneToOne(targetEntity = Backup.class)
+    @JoinColumn(name = "backup_id")
+    private Backup backup;
 
     @OneToOne(mappedBy = "user", targetEntity = Profile.class)
     private Profile profile;
@@ -87,6 +91,14 @@ public class User implements UserDetails {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Backup getBackup() {
+        return backup;
+    }
+
+    public void setBackup(Backup backup) {
+        this.backup = backup;
     }
 
     @Override

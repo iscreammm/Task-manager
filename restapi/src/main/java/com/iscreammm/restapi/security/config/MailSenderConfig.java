@@ -11,28 +11,28 @@ import java.util.Properties;
 
 @Configuration
 @EnableConfigurationProperties
-@ConfigurationProperties("spring.mail")
+@ConfigurationProperties("mail")
 public class MailSenderConfig {
-    private String host;
-    private int port;
+    private String mailHost;
+    private int mailPort;
     private String protocol;
     private String username;
     private String password;
 
-    public String getHost() {
-        return host;
+    public String getMailHost() {
+        return mailHost;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public void setMailHost(String mailHost) {
+        this.mailHost = mailHost;
     }
 
-    public int getPort() {
-        return port;
+    public int getMailPort() {
+        return mailPort;
     }
 
-    public void setPort(int port) {
-        this.port = port;
+    public void setMailPort(int mailPort) {
+        this.mailPort = mailPort;
     }
 
     public String getProtocol() {
@@ -63,15 +63,15 @@ public class MailSenderConfig {
     public JavaMailSender getJavaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
 
-        mailSender.setHost(host);
-        mailSender.setPort(port);
+        mailSender.setHost(mailHost);
+        mailSender.setPort(mailPort);
 
         mailSender.setUsername(username);
         mailSender.setPassword(password);
 
         Properties props = mailSender.getJavaMailProperties();
 
-        props.put("mail.transport.protocol", protocol);
+        props.put("mail.transport.protocol", "smtps");
         props.put("mail.debug", "true");
 
         return mailSender;

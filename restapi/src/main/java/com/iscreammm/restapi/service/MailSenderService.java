@@ -12,13 +12,11 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 public class MailSenderService {
     private final JavaMailSender javaMailSender;
     private final MailSenderConfig mailSenderConfig;
-
     @Autowired
     public MailSenderService(JavaMailSender javaMailSender, MailSenderConfig mailSenderConfig) {
         this.javaMailSender = javaMailSender;
         this.mailSenderConfig = mailSenderConfig;
     }
-
     public void send(String emailTo, String code) throws MessagingException {
         String subject = "Подтверждение email адреса Meracle";
         String message = "Вы получили данное письмо, так как был подан запрос на подтверждения этого email адреса."

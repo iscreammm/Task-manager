@@ -5,9 +5,9 @@ import com.iscreammm.restapi.repository.UserRepository;
 import com.iscreammm.restapi.security.config.JedisConfig;
 import com.iscreammm.restapi.security.jwt.JwtUtils;
 import com.iscreammm.restapi.utils.JwtResponse;
+import jakarta.transaction.Transactional;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,11 +15,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
 
 import java.io.IOException;
 import java.rmi.AccessException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -30,6 +34,13 @@ public class UserService implements UserDetailsService {
     private final JedisConfig jedisConfig;
     private final JedisPool jedisPool;
 
+    public UserService() {
+        this.userRepository = null;
+        this.passwordEncoder = null;
+        this.jwtUtils = null;
+        this.jedisConfig = null;
+        this.jedisPool = null;
+    }
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
                        JwtUtils jwtUtils, JedisConfig jedisConfig) {
@@ -37,15 +48,54 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
         this.jedisConfig = jedisConfig;
-        this.jedisPool = new JedisPool(jedisConfig.getHost(), jedisConfig.getPort());
+        this.jedisPool = new JedisPool(new JedisPoolConfig(), jedisConfig.getHost(), jedisConfig.getPort(),
+                10000, jedisConfig.getPassword());
     }
+    @Transactional
+    public List<String> checkUsername(String username) throws IOException {
+        if (username == null || username.length() < 6 || username.length() > 30) {
+            throw new IOException("Username isn't correct");
+        }
 
-    public String getProfile(String data) throws IOException, JSONException {
-        JSONObject jsonObject = new JSONObject(data);
+        List<User> usersWithUsername = userRepository.findByUsernameContains(username);
 
-        String username = jsonObject.getString("username");
-        String password = jsonObject.getString("password");
+        if (usersWithUsername.size() == 0) {
+            return new ArrayList<>();
+        } else {
+            List<String> freeUsernames = new ArrayList<>();
 
+            int number = 1;
+            AtomicBoolean isFree = new AtomicBoolean(true);
+            StringBuilder usernameBuilder = new StringBuilder(username);
+
+            while(freeUsernames.size() < 3) {
+                while ((number <= 1000) && (freeUsernames.size() < 3)) {
+                    String finalUsername = usernameBuilder.toString();
+                    int finalNumber = number;
+
+                    usersWithUsername.forEach(user -> {
+                        if (user.getUsername().equals(finalUsername + finalNumber)) {
+                            isFree.set(false);
+                        }
+                    });
+
+                    if (isFree.get()) {
+                        freeUsernames.add(usernameBuilder.toString() + number);
+                    }
+
+                    isFree.set(true);
+                    number++;
+                }
+
+                usernameBuilder.append(".");
+                number = 1;
+            }
+
+            return freeUsernames;
+        }
+    }
+    @Transactional
+    public String getProfile(String username, String password) throws IOException, JSONException {
         User user = userRepository.findByUsername(username);
 
         if (user == null) {
@@ -63,9 +113,9 @@ public class UserService implements UserDetailsService {
 
         return new JwtResponse(accessToken, refreshToken).toString();
     }
-
+    @Transactional
     public String refreshToken(String token) throws IOException {
-        String username = null;
+        String username;
 
         jwtUtils.validateJwtRefreshToken(token);
 
@@ -86,7 +136,7 @@ public class UserService implements UserDetailsService {
 
         return new JwtResponse(accessToken, refreshToken).toString();
     }
-
+    @Transactional
     public void activateUser(String code) throws IOException {
         User user = userRepository.findByCode(code);
 
@@ -99,7 +149,6 @@ public class UserService implements UserDetailsService {
             userRepository.save(user);
         }
     }
-
     public void updatePair(String refreshToken, String username) {
         String cursor = "0";
         ScanParams scanParams = new ScanParams().count(1);
@@ -118,19 +167,7 @@ public class UserService implements UserDetailsService {
             jedis.set(refreshToken, username);
         }
     }
-
-    public boolean isUsernameFree(String username) {
-        return (userRepository.findByUsername(username) == null);
-    }
-
-    public void update(User user) {
-        userRepository.save(user);
-    }
-
-    public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
-    }
-
+    @Transactional
     public User getUser(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
 
@@ -140,10 +177,25 @@ public class UserService implements UserDetailsService {
             return user;
         }
     }
-
+    @Transactional
+    public boolean isUsernameFree(String username) {
+        return (userRepository.findByUsername(username) == null);
+    }
+    @Transactional
+    public boolean isMailFree(String mail) {
+        return (userRepository.findByMail(mail) == null);
+    }
+    @Transactional
+    public void update(User user) {
+        userRepository.save(user);
+    }
+    @Transactional
+    public void deleteUser(Long userId) {
+        userRepository.deleteById(userId);
+    }
     @Override
-    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-        User user = getUser(login);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = getUser(username);
 
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
                 user.getAuthorities());

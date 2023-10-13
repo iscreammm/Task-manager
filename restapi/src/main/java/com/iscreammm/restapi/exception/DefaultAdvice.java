@@ -6,13 +6,14 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.mail.MessagingException;
-import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.json.JSONException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import redis.clients.jedis.exceptions.JedisException;
 
 import java.io.IOException;
+import java.rmi.AccessException;
 
 @RestControllerAdvice
 public class DefaultAdvice {
@@ -77,6 +78,14 @@ public class DefaultAdvice {
     @ResponseBody
     public String handleException(JedisException e) {
         Message<Integer> message = new Message<>(false, "Jedis error occurred: " + e.getMessage(), -1);
+
+        return message.toString();
+    }
+
+    @ExceptionHandler(AccessException.class)
+    @ResponseBody
+    public String handleException(AccessException e) {
+        Message<Integer> message = new Message<>(false, "Access error: " + e.getMessage(), -1);
 
         return message.toString();
     }
